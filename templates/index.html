@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diabetes Heatmap Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh; /* Use 100% of the viewport height */
+            margin: 0;
+            padding: 0;
+        }
+
+        h1 {
+            margin-bottom: 10px; /* Adjust the margin as needed */
+        }
+
+        #dashboard-controls {
+            margin-bottom: 10px; /* Adjust the margin as needed */
+        }
+
+        #heatmap-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #heatmap {
+            width: 90%; /* Adjust the width as needed */
+            height: 600px; /* Adjust the height as needed */
+            /* Additional styles as needed */
+        }
+    </style>
+</head>
+<body>
+    <h1>Diabetes Heatmap Dashboard</h1>
+    <div id="dashboard-controls"> 
+        <label for="searchInput">Search by Name:</label>
+        <input type="text" id="searchInput" placeholder="Enter Name">
+        <button onclick="filterData()">Search</button>
+    </div>
+    <div id="heatmap-container">
+        <div id="heatmap"></div>
+    </div>
+    <script src="https://d3js.org/d3.v6.min.js"></script>
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

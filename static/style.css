@@ -1,0 +1,86 @@
+/* Add this to your existing style.css file */
+
+body {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    margin: 0;
+    font-family: Arial, sans-serif;
+}
+
+#heatmap-container {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+#legend-container {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+}
+
+#heatmap {
+    /* Adjust the width and height as needed */
+    width: 1200px;
+    height: 700px;
+}
+
+.search-box {
+    margin-top: 20px;
+}
+
+#search-container {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    display: flex;
+    align-items: center;
+}
+
+#search-container input {
+    padding: 5px;
+    font-size: 14px;
+}
+
+#search-container button {
+    background-color: #3498db;
+    color: #fff;
+    padding: 6px 12px;
+    font-size: 14px;
+    cursor: pointer;
+    border: none;
+    margin-left: 5px;
+}
+
+.legend {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    display: flex;
+    flex-direction: column;
+    margin-right: 20px;
+}
+
+.legend .bp-legend {
+    width: 15px;
+    height: 15px;
+    margin-bottom: 5px;
+    background-color: red; /* Red for Blood Pressure */
+}
+
+.legend .glucose-legend {
+    width: 15px;
+    height: 15px;
+    margin-bottom: 5px;
+    background-color: blue; /* Blue for Blood Sugar */
+}
+
+.legend-label {
+    font-size: 12px;
+    margin-left: 5px;
+    margin-bottom: 3px; /* Add margin-bottom for spacing */
+}
+
