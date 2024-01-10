@@ -1,45 +1,33 @@
-let data; // Define a global variable to hold the dataset
+// Initialize 'data' variable to hold the dataset
+let data;
 
-// Function to fetch data
-function fetchData() {
-    fetch('/get_data/all')
-        .then(response => response.json())
-        .then(result => {
-            data = result;
-            updateHeatmap(data); // Initial display of the entire dataset
-        })
-        .catch(error => console.error('Error fetching data:', error));
-}
-
-// Call fetchData to fetch the initial data
-fetchData();
-
-// Updated filterData function
-function filterData() {
-    const searchInput = document.getElementById('searchInput').value.toLowerCase();
-
-    // Check if the search term is "all"
-    if (searchInput === 'all') {
-        // Display the chart for the entire dataset
+// Fetch the dataset from Flask backend on page load
+fetch('/get_data/all')
+    .then(response => response.json())
+    .then(initialData => {
+        data = initialData;
+        // Display the initial heatmap for the entire dataset
         updateHeatmap(data);
-    } else {
-        // Fetch filtered data from Flask backend
-        fetch(`/get_data/${searchInput}`)
-            .then(response => response.json())
-            .then(filteredData => {
-                // Check if filteredData is empty, if yes, show the entire dataset
-                if (filteredData.length === 0) {
-                    updateHeatmap(data);
-                } else {
-                    updateHeatmap(filteredData);
-                }
-            })
-            .catch(error => console.error('Error fetching filtered data:', error));
-    }
-}
+    })
+    .catch(error => console.error('Error fetching initial data:', error));
+
+// D3.js heatmap code
 function updateHeatmap(filteredData) {
     // Clear previous content
     d3.select("#heatmap").selectAll("*").remove();
+
+    // Check if filteredData has the expected structure
+    if (!filteredData || !Array.isArray(filteredData) || filteredData.length === 0) {
+        console.error('Invalid or empty data:', filteredData);
+        return;
+    }
+
+    // Ensure that the filteredData has the required properties (Name, BloodPressure, Glucose)
+    const requiredProperties = ['Name', 'BloodPressure', 'Glucose'];
+    if (!requiredProperties.every(prop => prop in filteredData[0])) {
+        console.error('Data does not have the required properties:', filteredData[0]);
+        return;
+    }
 
     // Define the dimensions of the heatmap
     const margin = { top: 20, right: 30, bottom: 50, left: 70 };
@@ -56,7 +44,7 @@ function updateHeatmap(filteredData) {
 
     // Set up scales
     const xScale = d3.scaleBand()
-        .domain(filteredData.map(d => d.Name))  // Use the Name as the domain for x-axis
+        .domain(filteredData.map(d => d.Name))
         .range([0, width])
         .padding(0.1);
 
@@ -64,18 +52,15 @@ function updateHeatmap(filteredData) {
         .domain([0, d3.max(filteredData, d => Math.max(d.BloodPressure, d.Glucose))])
         .range([height, 0]);
 
-    // Reduce the size of the bars for better visibility
-    const barWidth = Math.min(xScale.bandwidth() / 2, 20);
-
     // Add red bars for BloodPressure
     svg.selectAll(".bar-bloodpressure")
         .data(filteredData)
         .enter()
         .append("rect")
         .attr("class", "bar-bloodpressure")
-        .attr("x", d => xScale(d.Name))  // Use the Name for x-position
+        .attr("x", d => xScale(d.Name))
         .attr("y", d => yScale(d.BloodPressure))
-        .attr("width", barWidth)
+        .attr("width", xScale.bandwidth() / 3)
         .attr("height", d => height - yScale(d.BloodPressure))
         .attr("fill", "red");
 
@@ -85,9 +70,9 @@ function updateHeatmap(filteredData) {
         .enter()
         .append("rect")
         .attr("class", "bar-glucose")
-        .attr("x", d => xScale(d.Name) + barWidth)
+        .attr("x", d => xScale(d.Name) + xScale.bandwidth() * 2 / 3)
         .attr("y", d => yScale(d.Glucose))
-        .attr("width", barWidth)
+        .attr("width", xScale.bandwidth() / 3)
         .attr("height", d => height - yScale(d.Glucose))
         .attr("fill", "blue");
 
@@ -118,33 +103,42 @@ function updateHeatmap(filteredData) {
         .enter()
         .append("text")
         .attr("class", "bar-names")
-        .attr("x", d => xScale(d.Name) + barWidth / 2)
+        .attr("x", d => xScale(d.Name) + xScale.bandwidth() / 2)
         .attr("y", height + margin.top + 40)
         .attr("text-anchor", "middle")
         .text(d => d.Name)
         .style("font-size", "12px");
 }
 
+// ... (Previous code)
+
 // Updated filterData function
 function filterData() {
-    const searchInput = document.getElementById("searchInput").value.toLowerCase();
+    // Get the search input value
+    const searchInputValue = document.getElementById("searchInput").value.toLowerCase();
 
-    // Check if the search term is "all"
-    if (searchInput === "all") {
-        // Display the chart for the entire dataset
-        updateHeatmap(data);
-    } else {
-        // Fetch filtered data from Flask backend
-        fetch(`/get_data/${searchInput}`)
-            .then(response => response.json())
-            .then(filteredData => {
-                // Check if filteredData is empty, if yes, show the entire dataset
-                if (filteredData.length === 0) {
-                    updateHeatmap(data);
-                } else {
-                    updateHeatmap(filteredData);
-                }
-            })
-            .catch(error => console.error('Error fetching data:', error));
-    }
+    // Fetch filtered data from Flask backend
+    fetch(`/get_data/${searchInputValue}`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`Failed to fetch data. Status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(filteredData => {
+            // Log received data
+            console.log('Received Data:', filteredData);
+
+            // Check if search term is "all" or filteredData is empty
+            if (searchInputValue === "all" || filteredData.length === 0) {
+                console.log('Displaying entire dataset');
+                updateHeatmap(data);  // Pass 'data' as a parameter
+            } else {
+                console.log('Displaying filtered data');
+                updateHeatmap(filteredData);  // Display the chart for the filtered data
+            }
+        })
+        .catch(error => console.error('Error fetching data:', error));
 }
+
+// ... (Continue your script if there's more)

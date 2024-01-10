@@ -10,11 +10,15 @@ with open('Diabetes.json') as f:
 @app.route('/')
 def index():
     return render_template('index.html')
-
-@app.route('/get_data/<name>')
-def get_data(name):
-    filtered_data = [entry for entry in data if entry['Name'].lower().startswith(name.lower())]
-    return jsonify(filtered_data)
+@app.route('/get_data/<search_term>')
+def get_filtered_data(search_term):
+    if search_term.lower() == 'all':
+        # Send the entire dataset
+        return jsonify(data)
+    else:
+        # Filter the dataset for the specific name
+        filtered_data = [entry for entry in data if entry['Name'].lower() == search_term.lower()]
+        return jsonify(filtered_data)
 
 if __name__ == '__main__':
     app.run(debug=True)
