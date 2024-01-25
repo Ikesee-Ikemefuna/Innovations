@@ -35,6 +35,6 @@ Low intensity red bars signify low Blood-Pressure(More Danger)
 **How to use**
 (1) Clone from this Github repository
 (2) Run it on Github Codespaces
-(3) Visualize every information
+(3) Visualize every Data/information
 
 
