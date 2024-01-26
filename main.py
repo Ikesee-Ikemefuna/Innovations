@@ -1,4 +1,5 @@
 from flask import Flask, render_template, jsonify
+
 import json
 
 app = Flask(__name__)
@@ -10,6 +11,19 @@ with open('Diabetes.json') as f:
 @app.route('/')
 def index():
     return render_template('index.html')
+    # Route for serving styles.css
+@app.route('/styles.css')
+def get_styles():
+    return send_file('static/styles.css')
+
+# Route for serving script.js
+@app.route('/script.js')
+def get_script():
+    return send_file('static/script.js')
+    # Route for serving script.js
+@app.route('/Diabetes.json')
+def get_fhir_data():
+    return send_file('Diabetes.json')
 @app.route('/get_data/<search_term>')
 def get_filtered_data(search_term):
     if search_term.lower() == 'all':
@@ -25,6 +39,5 @@ if __name__ == '__main__':
 
 
 
-                                                                                                                                                                       from flask import Flask, render_template, jsonifyimport json
-
+                
 
