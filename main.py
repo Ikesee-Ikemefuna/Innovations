@@ -1,56 +1,30 @@
-from flask import Flask, request, jsonify
+from flask import Flask, render_template, jsonify
 import json
-import os
 
 app = Flask(__name__)
 
-# Your existing Diabetes.json data
-DIABETES_FILE = 'Diabetes.json'
+# Load the data from Diabetes.json
+with open('Diabetes.json') as f:
+    data = json.load(f)
 
-@app.route('/', methods=['GET'])
-def get_diabetes_data():
-    try:
-        with open(DIABETES_FILE, 'r') as file:
-            diabetes_data = json.load(file)
-        return jsonify(diabetes_data)
+@app.route('/')
+def index():
+    return render_template('index.html')
+@app.route('/get_data/<search_term>')
+def get_filtered_data(search_term):
+    if search_term.lower() == 'all':
+        # Send the entire dataset
+        return jsonify(data)
+    else:
+        # Filter the dataset for the specific name
+        filtered_data = [entry for entry in data if entry['Name'].lower() == search_term.lower()]
+        return jsonify(filtered_data)
 
-    except FileNotFoundError:
-        return jsonify({"status": "error", "message": "Diabetes.json not found"}), 404
-    except json.JSONDecodeError as e:
-        return jsonify({"status": "error", "message": f"Error decoding JSON: {str(e)}"}), 500
+if __name__ == '__main__':
+    app.run(debug=True)
 
-@app.route('/', methods=['POST'])
-def post_fhir_bundle():
-    try:
-        fhir_bundle_data = request.get_json()
 
-        # Validate FHIR bundle data
-        if not validate_fhir_data(fhir_bundle_data):
-            return jsonify({"status": "error", "message": "Invalid FHIR bundle data"}), 400
 
-        converted_data = convert_fhir_to_diabetes(fhir_bundle_data)
+                                                                                                                                                                       from flask import Flask, render_template, jsonifyimport json
 
-        with open(DIABETES_FILE, 'r') as file:
-            diabetes_data = json.load(file)
 
-        diabetes_data.extend(converted_data)
-
-        with open(DIABETES_FILE, 'w') as file:
-            json.dump(diabetes_data, file, indent=2)
-
-        return jsonify({"status": "success", "message": "Data added to Diabetes.json"})
-
-    except FileNotFoundError:
-        return jsonify({"status": "error", "message": "Diabetes.json not found"}), 404
-    except json.JSONDecodeError as e:
-        return jsonify({"status": "error", "message": f"Error decoding JSON: {str(e)}"}), 500
-    except Exception as e:
-        return jsonify({"status": "error", "message": str(e)}), 500
-
-def validate_fhir_data(fhir_data):
-    # Implement your validation logic here
-    # Check if required fields are present, have the right data types, etc.
-    # Return True if the data is valid, False otherwise
-    return True
-
-# The rest of your code remains unchanged
