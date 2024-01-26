@@ -1,4 +1,3 @@
-Main.py for my diabetes 
 from flask import Flask, render_template, jsonify
 import json
 
